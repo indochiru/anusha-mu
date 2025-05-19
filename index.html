@@ -1,84 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <base href="./">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/images/favicon/favicon-96x96.png">
+    <link rel="shortcut icon" href="/assets/images/favicon/favicon.ico">
+
+    <link rel="manifest" href="/manifest.json">
+
+    <meta name="theme-color" content="#0f0f1a">
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('sw.js', {
+                        scope: '/',
+                        updateViaCache: 'none'
+                    });
+                    console.log('ServiceWorker registered successfully');
+
+                    // Handle service worker updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'activated' && !document.hidden) {
+                                // Use location.replace instead of reload to prevent redirect
+                                if (window.performance.navigation.type !== 2) { // Not back/forward navigation
+                                    location.replace(location.href);
+                                }
+                            }
+                        });
+                    });
+
+                    // Handle periodic sync
+                    if ('periodicSync' in registration) {
+                        navigator.permissions.query({
+                            name: 'periodic-background-sync',
+                        }).then((status) => {
+                            if (status.state === 'granted') {
+                                registration.periodicSync.register('cache-cleanup', {
+                                    minInterval: 24 * 60 * 60 * 1000
+                                }).catch(error => {
+                                    console.log('Periodic sync registration failed:', error);
+                                });
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('ServiceWorker registration failed:', error);
+                }
+            });
+
+            // Add bfcache support
+            window.addEventListener('pageshow', (event) => {
+                if (event.persisted) {
+                    // Page was restored from bfcache
+                    console.log('Page restored from bfcache');
+                }
+            });
+        }
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0f0f1a">
+    
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f0f1a">
+
+    <meta name="description" content="Celebrate the birthday of Anusha Mam with a heartfelt tribute filled with memories, wishes, and moments that reflect her inspiring presence.">
+    <meta property="og:title" content="Happy Birthday, Anusha Mam 🎉">
+    <meta property="og:description" content="Join us in celebrating the wonderful Anusha Mam with heartfelt messages, cherished memories, and birthday love.">
+    <meta property="og:image" content="assets/images/Anu.webp">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://anushamam.online/">
     <title>Happy Birthday, Anusha Mam 🎉</title>
     
-    <!-- Preload important images -->
-    <link rel="preload" as="image" href="assets/images/Anu.webp">
-    <link rel="preload" as="image" href="assets/images/Anu1.webp">
-    <link rel="preload" as="image" href="assets/images/Anu2.webp">
-    <link rel="preload" as="image" href="assets/images/Anu3.webp">
+    <meta name="keywords" content="birthday, celebration, Anusha Mam, special day">
+    <meta name="author" content="Chiru">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://anushamam.online/">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Happy Birthday, Anusha Mam 🎉">
+    <meta name="twitter:description" content="Join us in celebrating the wonderful Anusha Mam with heartfelt messages.">
+    <meta name="twitter:image" content="assets/images/Anu.webp">
+    
+    <link rel="preload" as="image" href="assets/images/avif/Anu.avif">
 
-    <!-- Font Awesome -->
+    <link rel="prefetch" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
+    <link rel="prefetch" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" as="style">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- GSAP Animation Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     
-    <!-- Three.js for 3D effects -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
-    <!-- Particles.js for background effects -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
     
-    <!-- Tilt.js for 3D card effects -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
     
-    <!-- Link to External CSS -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style1.css">
+    
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
 </head>
 <body>
-    <!-- Preloader -->
     <div class="preloader">
         <div class="loader"></div>
     </div>
     
-    <!-- Progress Bar -->
     <div class="progress-container">
         <div class="progress-bar"></div>
     </div>
     
-    <!-- Particles Background -->
     <div id="particles-js"></div>
     
-    <!-- Custom Cursor -->
     <div class="custom-cursor"></div>
     <div class="custom-cursor-follower"></div>
     
-    <!-- Audio Element -->
-    <audio id="bg-music" loop>
+    <audio id="bg-music" loop preload="none">
         <source src="assets/audio/love_story_instrumental.mp3" type="audio/mp3">
     </audio>
     
-    <!-- Fixed Navigation -->
-    <nav class="fixed-nav">
+    <nav class="fixed-nav" role="navigation" aria-label="Main navigation">
         <div class="nav-photo">
-            <img src="assets/images/Anu.webp" alt="Anusha Mam" oncontextmenu="return false;">
+            <picture>
+                <source srcset="assets/images/avif/Anu.avif" type="image/avif">
+                <source srcset="assets/images/webp/Anu.webp" type="image/webp">
+                <img src="assets/images/avif/Anu.avif" alt="Anusha Mam" loading="eager" decoding="async" width="40" height="40">
+            </picture>
         </div>
-        <div class="nav-title">
+        <div class="nav-title" role="heading" aria-level="1">
             Happy Birthday, Anusha Mam 💜🎉
         </div>
-        <div class="music-controls">
-            <button id="play-pause" aria-label="Play/Pause music"><i class="fas fa-play"></i></button>
-            <button id="mute-unmute" aria-label="Mute/Unmute music"><i class="fas fa-volume-up"></i></button>
+        <div class="music-controls" role="group" aria-label="Music controls">
+            <button id="play-pause" type="button" aria-label="Play or pause music"><i class="fas fa-play" aria-hidden="true"></i></button>
+            <button id="mute-unmute" type="button" aria-label="Mute or unmute music"><i class="fas fa-volume-up" aria-hidden="true"></i></button>
         </div>
     </nav>
-    
-    <!-- Hero Section -->
-    <section class="hero">
-        <canvas id="hero-canvas"></canvas>
+
+    <section class="hero" role="banner">
+        <canvas id="hero-canvas" aria-hidden="true"></canvas>
         <div class="hero-content">
             <div class="hero-photo-container">
                 <div class="hero-photo">
                     <div class="hero-photo-front">
-                        <img src="assets/images/Anu.webp" alt="Anusha Mam" oncontextmenu="return false;">
+                            <picture>
+                                <source srcset="assets/images/avif/Anu.avif" type="image/avif">
+                                <source srcset="assets/images/webp/Anu.webp" type="image/webp">
+                                <img src="assets/images/avif/Anu.avif" alt="Anusha Mam" loading="eager" decoding="async" oncontextmenu="return false;" fetchpriority="high" width="300" height="300">
+                            </picture>
                     </div>
                     <div class="hero-photo-back">
                         <div>
@@ -91,12 +170,11 @@
             <h1 class="hero-title">Happy Birthday, Anusha Mam</h1>
             <p class="hero-subtitle">Your smile lights up my world</p>
         </div>
-        <div class="scroll-indicator" aria-label="Scroll down">
-            <i class="fas fa-chevron-down"></i>
+        <div class="scroll-indicator" role="button" tabindex="0" aria-label="Scroll down to view more content">
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </div>
     </section>
     
-    <!-- 3D Model Section -->
     <section class="model-section">
         <div class="model-container">
             <div id="heart-model"></div>
@@ -109,9 +187,8 @@
         </div>
     </section>
     
-    <!-- Gallery Section -->
-    <section class="gallery">
-        <h2 class="section-title">Cherished Memories</h2>
+    <section class="gallery" role="region" aria-labelledby="gallery-title">
+        <h2 id="gallery-title" class="section-title">Cherished Memories</h2>
         
         <div class="floating-elements">
             <div class="floating-element floating-heart" style="top: 20%; left: 10%;"></div>
@@ -125,7 +202,11 @@
         <div class="gallery-grid">
             <div class="gallery-item">
                 <div class="gallery-photo">
-                    <img src="assets/images/Anu1.webp" alt="First Memory" oncontextmenu="return false;">
+                    <picture>
+                        <source srcset="assets/images/avif/Anu1.avif" type="image/avif">
+                        <source srcset="assets/images/webp/Anu1.webp" type="image/webp">
+                        <img src="assets/images/avif/Anu1.avif" alt="First Memory" loading="lazy" decoding="async" oncontextmenu="return false;" width="300" height="300">
+                    </picture>                
                 </div>
                 <div class="gallery-content">
                     <h3>The Day We Met</h3>
@@ -140,7 +221,11 @@
             
             <div class="gallery-item">
                 <div class="gallery-photo">
-                    <img src="assets/images/Anu2.webp" alt="Second Memory" oncontextmenu="return false;">
+                    <picture>
+                        <source srcset="assets/images/avif/Anu2.avif" type="image/avif">
+                        <source srcset="assets/images/webp/Anu2.webp" type="image/webp">
+                        <img src="assets/images/avif/Anu2.avif" alt="Second Memory" loading="lazy" decoding="async" oncontextmenu="return false;" width="300" height="300">
+                    </picture>     
                 </div>
                 <div class="gallery-content">
                     <h3>Our First Celebration</h3>
@@ -155,7 +240,11 @@
             
             <div class="gallery-item">
                 <div class="gallery-photo">
-                    <img src="assets/images/Anu3.webp" alt="Third Memory" oncontextmenu="return false;">
+                    <picture>
+                        <source srcset="assets/images/avif/Anu3.avif" type="image/avif">
+                        <source srcset="assets/images/webp/Anu3.webp" type="image/webp">
+                        <img src="assets/images/avif/Anu3.avif" alt="Third Memory" loading="lazy" decoding="async" oncontextmenu="return false;" width="300" height="300">
+                    </picture>                     
                 </div>
                 <div class="gallery-content">
                     <h3>Quiet Moments Together</h3>
@@ -170,9 +259,8 @@
         </div>
     </section>
     
-    <!-- Final Message Section -->
-    <section class="final-message">
-        <h2 class="message-title">A Birthday Wishes For You</h2>
+    <section class="final-message" role="region" aria-labelledby="message-title">
+        <h2 id="message-title" class="message-title">A Birthday Wishes For You</h2>
         
         <p class="birthday-wishes">
             Dear Anusha Mam, On Your Special Day, I Wish You All The Happiness This World Has To Offer. May Your Life Be Filled With Endless Joy, Success In All Your Endeavors, And Love That Grows Stronger With Each Passing Day. You Deserve Nothing But The Very Best, And I Hope This Year Brings You Countless Reasons To Smile.
@@ -195,10 +283,13 @@
 
         <a href="tel:+919739281371" class="final-cta" aria-label="Call to celebrate">Celebrate With Me</a>
         
-        <!-- Footer Section with Chiru Logo and Social Links -->
         <div class="footer-section">
             <div class="chiru-footer-logo">
-                <img src="assets\images\Chiru.webp" alt="Chiru's logo" loading="lazy" oncontextmenu="return false;">
+                <picture>
+                    <source srcset="assets/images/avif/chiru.avif" type="image/avif">
+                    <source srcset="assets/images/webp/chiru.webp" type="image/webp">
+                    <img src="assets/images/avif/chiru.avif" alt="Chiru's logo" loading="lazy" decoding="async" oncontextmenu="return false;" width="80" height="80">
+                </picture>     
             </div>
             
             <div class="social-links">
@@ -220,12 +311,10 @@
                 Designed with ❤️ by Chiru | © 2025
             </div>
         </div>
-        
-        <!-- Fireflies effect -->
+
         <div id="fireflies-container"></div>
     </section>
 
-    <!-- Link to External JS -->
-    <script src="script.js"></script>
+    <script defer src="script1.js"></script>
 </body>
 </html>
