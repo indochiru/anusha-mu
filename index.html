@@ -16,31 +16,39 @@
                 try {
                     const registration = await navigator.serviceWorker.register('sw.js', {
                         scope: '/',
-                        updateViaCache: 'none'
+                        updateViaCache: 'none' // This ensures the browser always checks for a new SW
                     });
                     console.log('ServiceWorker registered successfully');
 
                     // Handle service worker updates
                     registration.addEventListener('updatefound', () => {
                         const newWorker = registration.installing;
+                        console.log('A new service worker is installing.');
+
                         newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'activated' && !document.hidden) {
-                                // Use location.replace instead of reload to prevent redirect
-                                if (window.performance.navigation.type !== 2) { // Not back/forward navigation
-                                    location.replace(location.href);
-                                }
+                            console.log('Service worker state changed to:', newWorker.state);
+                            if (newWorker.state === 'activated') {
+                                console.log('Service worker has been activated.');
+                                // The page will NOT reload automatically here.
+                                // The new service worker will control the page for subsequent requests
+                                // and navigations.
+                                // You could optionally show a subtle, non-intrusive message
+                                // to the user that the site has been updated in the background, for example:
+                                // if (!document.hidden) {
+                                //   console.log("Site has been updated in the background. Future visits will use the new version.");
+                                // }
                             }
                         });
                     });
 
-                    // Handle periodic sync
+                    // Handle periodic sync (your existing code)
                     if ('periodicSync' in registration) {
                         navigator.permissions.query({
                             name: 'periodic-background-sync',
                         }).then((status) => {
                             if (status.state === 'granted') {
                                 registration.periodicSync.register('cache-cleanup', {
-                                    minInterval: 24 * 60 * 60 * 1000
+                                    minInterval: 24 * 60 * 60 * 1000 // 24 hours
                                 }).catch(error => {
                                     console.log('Periodic sync registration failed:', error);
                                 });
@@ -52,7 +60,7 @@
                 }
             });
 
-            // Add bfcache support
+            // Add bfcache support (your existing code)
             window.addEventListener('pageshow', (event) => {
                 if (event.persisted) {
                     // Page was restored from bfcache
@@ -68,8 +76,6 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f0f1a">
-
     <meta name="description" content="Celebrate the birthday of Anusha Mam with a heartfelt tribute filled with memories, wishes, and moments that reflect her inspiring presence.">
     <meta property="og:title" content="Happy Birthday, Anusha Mam 🎉">
     <meta property="og:description" content="Join us in celebrating the wonderful Anusha Mam with heartfelt messages, cherished memories, and birthday love.">
